@@ -33,25 +33,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              "Loan From Rakib",
-                              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                                  fontWeight: .bold
-                              ),
+                              "Get my Salary",
+                              style: Theme.of(context).textTheme.titleLarge!
+                                  .copyWith(fontWeight: .bold),
                             ),
                           ),
-                          IconButton(onPressed: (){}, icon: Icon(Icons.menu))
-                        ]
+                          IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
+                        ],
                       ),
-
-                      const SizedBox(height: 10,),
 
                       Row(
                         children: [
                           Expanded(child: Text("Balance: 1000")),
                           Expanded(child: Text("04-02-2026, 11:45AM")),
                         ],
-                      )
-                      
+                      ),
                     ],
                   ),
                 ),
