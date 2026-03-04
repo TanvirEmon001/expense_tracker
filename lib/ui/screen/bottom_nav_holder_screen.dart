@@ -14,7 +14,6 @@ class _BottomNavHolderScreenState extends State<BottomNavHolderScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const SizedBox(child: Center(child: Text("Add Screen"),),),
     const SizedBox(child: Center(child: Text("Settings Screen"),),)
   ];
 
@@ -31,12 +30,10 @@ class _BottomNavHolderScreenState extends State<BottomNavHolderScreen> {
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white70,
         onTap: _selectScreen,
         currentIndex: _selectedIndex,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add"),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: "Settings",
