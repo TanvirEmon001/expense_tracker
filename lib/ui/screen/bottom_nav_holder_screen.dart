@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:track_expense/ui/screen/home_screen.dart';
+import 'package:track_expense/ui/screen/settings_screen.dart';
 
 class BottomNavHolderScreen extends StatefulWidget {
   const BottomNavHolderScreen({super.key});
@@ -14,7 +15,7 @@ class _BottomNavHolderScreenState extends State<BottomNavHolderScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const SizedBox(child: Center(child: Text("Settings Screen"),),)
+    const SettingsScreen(),
   ];
 
 
