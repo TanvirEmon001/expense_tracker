@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:track_expense/models/expense_item_model.dart';
 import 'package:track_expense/provider/add_expense_item_provider.dart';
 import 'package:track_expense/ui/screen/expense_item_details_screen.dart';
 import 'package:track_expense/ui/widgets/add_new_expense_item.dart';
 
-import '../../provider/update_expense_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) =>
-                              ExpenseItemDetailsScreen(index: index,),
+                              ExpenseItemDetailsScreen(index: index, itemId: eachItem.id,),
                         ),
                       );
                     },

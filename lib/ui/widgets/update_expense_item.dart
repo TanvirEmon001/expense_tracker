@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:track_expense/models/balance_item_model.dart';
 import 'package:track_expense/provider/add_expense_item_provider.dart';
-import 'package:track_expense/provider/update_expense_provider.dart';
+import 'package:track_expense/provider/balance_item_provider.dart';
 
 class UpdateExpenseItem extends StatefulWidget {
   const UpdateExpenseItem({
     super.key,
     required this.isExpense,
-    required this.index
+    required this.index,
+    required this.itemId
   });
 
   final bool isExpense;
   final int index;
-
+  final String itemId;
 
   @override
   State<UpdateExpenseItem> createState() => _UpdateExpenseItemState();
@@ -94,7 +96,6 @@ class _UpdateExpenseItemState extends State<UpdateExpenseItem> {
     final amount = double.tryParse(_amountController.text.trim());
     final amountIsValid = amount == null || amount <= 0;
 
-
     if (note.isEmpty || amountIsValid || amount <= 0) {
       showDialog(
         context: context,
@@ -116,11 +117,21 @@ class _UpdateExpenseItemState extends State<UpdateExpenseItem> {
       return;
     }
 
-
     context.read<AddExpenseItemProvider>().updateItem(
       index: widget.index,
       amount: amount,
       isExpense: widget.isExpense,
+    );
+
+
+    context.read<BalanceItemProvider>().addBalanceItem(
+      BalanceItemModel(
+        itemId: widget.itemId,
+        title: note,
+        updatedBalance: amount,
+        isExpense: widget.isExpense,
+        dateTime: DateTime.now(),
+      ),
     );
 
     Navigator.of(context).pop();

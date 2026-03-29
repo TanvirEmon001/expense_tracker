@@ -3,13 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expense/provider/add_expense_item_provider.dart';
+import 'package:track_expense/provider/balance_item_provider.dart';
 
 import 'package:track_expense/ui/widgets/update_expense_item.dart';
 
 class ExpenseItemDetailsScreen extends StatefulWidget {
-  const ExpenseItemDetailsScreen({super.key, required this.index});
+  const ExpenseItemDetailsScreen({
+    super.key,
+    required this.index,
+    required this.itemId,
+  });
 
   final int index;
+  final String itemId;
 
   @override
   State<ExpenseItemDetailsScreen> createState() =>
@@ -24,6 +30,11 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
     final item = context
         .watch<AddExpenseItemProvider>()
         .expenseItemLists[widget.index];
+
+    final transactions = context.watch<BalanceItemProvider>().getItemsById(
+      item.id,
+    );
+    transactions.reversed.toList();
     return Scaffold(
       backgroundColor: Colors.grey[50], // Light background to make the card pop
       appBar: AppBar(
@@ -34,7 +45,7 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               Container(
@@ -114,6 +125,59 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
                   ],
                 ),
               ),
+
+              const SizedBox(height: 15),
+
+              Consumer<BalanceItemProvider>(
+                builder: (_, provider, _) {
+                  return ListView.builder(
+                    itemCount: transactions.length,
+                    shrinkWrap: true,
+                      itemBuilder: (_, index) {
+                        final tx = transactions[index];
+
+                        final isExpense = tx.isExpense;
+                        final textColor = isExpense ? Colors.white : null;
+                        final cardColor =
+                        isExpense ? Colors.redAccent : Colors.greenAccent;
+                        final label = isExpense ? "Expense" : "Profit";
+                        final sign = isExpense ? "-" : "+";
+
+                        return Card(
+                          color: cardColor,
+                          child: ListTile(
+                            title: Row(
+                              children: [
+                                Text(
+                                  label,
+                                  style: TextStyle(color: textColor),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  "$sign${tx.updatedBalance}",
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Text(
+                                  tx.title,
+                                  style: TextStyle(color: textColor),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  tx.formattedDate.toString(),
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -127,8 +191,11 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
   void _showTransactionModal({required bool expenseMode}) {
     showModalBottomSheet(
       context: context,
-      builder: ((_) =>
-          UpdateExpenseItem(isExpense: expenseMode, index: widget.index)),
+      builder: ((_) => UpdateExpenseItem(
+        isExpense: expenseMode,
+        index: widget.index,
+        itemId: widget.itemId,
+      )),
     );
   }
 }
