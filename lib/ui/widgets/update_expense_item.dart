@@ -1,28 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:track_expense/models/expense_item_model.dart';
 import 'package:track_expense/provider/add_expense_item_provider.dart';
+import 'package:track_expense/provider/update_expense_provider.dart';
 
-class AddNewExpenseItem extends StatefulWidget {
-  const AddNewExpenseItem({super.key,});
+class UpdateExpenseItem extends StatefulWidget {
+  const UpdateExpenseItem({
+    super.key,
+    required this.isExpense,
+    required this.index
+  });
+
+  final bool isExpense;
+  final int index;
 
 
   @override
-  State<AddNewExpenseItem> createState() => _AddNewExpenseItemState();
+  State<UpdateExpenseItem> createState() => _UpdateExpenseItemState();
 }
 
-class _AddNewExpenseItemState extends State<AddNewExpenseItem> {
-  final TextEditingController _titleController = TextEditingController();
+class _UpdateExpenseItemState extends State<UpdateExpenseItem> {
+  final TextEditingController _noteController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
-  @override
-  Widget build(context) {
-    final keyboardSpaces = MediaQuery.of(context).viewInsets.bottom;
 
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardSpaces = MediaQuery.of(context).viewInsets.bottom;
     return LayoutBuilder(
       builder: (_, constraints) {
-        //final width = constraints.maxWidth; for responsiveness
-
         return SizedBox(
           height: double.infinity,
           child: Padding(
@@ -31,7 +37,7 @@ class _AddNewExpenseItemState extends State<AddNewExpenseItem> {
               child: Column(
                 children: [
                   TextField(
-                    controller: _titleController,
+                    controller: _noteController,
                     maxLength: 50,
                     textInputAction: .next,
                     decoration: const InputDecoration(label: Text("Title")),
@@ -54,11 +60,18 @@ class _AddNewExpenseItemState extends State<AddNewExpenseItem> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: _saveItemOnTap,
+                          onPressed: _updateBalanceOnTap,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.greenAccent,
+                            backgroundColor: widget.isExpense
+                                ? Colors.redAccent
+                                : Colors.greenAccent,
                           ),
-                          child: const Text("Save Item"),
+                          child: Text(
+                            "Update Balance",
+                            style: TextStyle(
+                              color: widget.isExpense ? Colors.white : null,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -76,12 +89,13 @@ class _AddNewExpenseItemState extends State<AddNewExpenseItem> {
     Navigator.of(context).pop();
   }
 
-  void _saveItemOnTap() {
-    final title = _titleController.text.trim();
+  void _updateBalanceOnTap() {
+    final note = _noteController.text.trim();
     final amount = double.tryParse(_amountController.text.trim());
     final amountIsValid = amount == null || amount <= 0;
 
-    if (title.isEmpty || amountIsValid) {
+
+    if (note.isEmpty || amountIsValid || amount <= 0) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -101,20 +115,14 @@ class _AddNewExpenseItemState extends State<AddNewExpenseItem> {
       );
       return;
     }
-    context.read<AddExpenseItemProvider>().addExpenseItem(
-      ExpenseItemModel(
-        itemName: title,
-        balance: amount,
-        dateTime: DateTime.now(),
-      ),
-    );
-    Navigator.of(context).pop();
-  }
 
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _amountController.dispose();
-    super.dispose();
+
+    context.read<AddExpenseItemProvider>().updateItem(
+      index: widget.index,
+      amount: amount,
+      isExpense: widget.isExpense,
+    );
+
+    Navigator.of(context).pop();
   }
 }

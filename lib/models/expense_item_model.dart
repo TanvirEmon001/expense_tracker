@@ -9,7 +9,7 @@ final formatter = DateFormat.yMd();
 class ExpenseItemModel {
   final String id;
   final String itemName;
-  final double balance;
+  double balance;
   final DateTime dateTime;
 
   String get formattedDate => formatter.format(dateTime);

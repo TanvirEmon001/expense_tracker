@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:track_expense/models/expense_item_model.dart';
+import 'package:track_expense/provider/add_expense_item_provider.dart';
+import 'package:track_expense/ui/screen/expense_item_details_screen.dart';
 import 'package:track_expense/ui/widgets/add_new_expense_item.dart';
+
+import '../../provider/update_expense_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,21 +15,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<ExpenseItemModel> _items = [
-    ExpenseItemModel(
-      itemName: "Get my Salary",
-      balance: 20000,
-      dateTime: DateTime.now(),
-    ),
-    ExpenseItemModel(
-      itemName: "Loan From Friend",
-      balance: 500,
-      dateTime: DateTime.now(),
-    ),
-  ];
+
 
   @override
   Widget build(context) {
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add Items"),
@@ -35,43 +30,62 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Expanded(
-          child: ListView.builder(
-            itemCount: _items.length,
-            itemBuilder: (_, index) {
-              final eachItem = _items[index];
-              return Card(
-                elevation: 5,
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              eachItem.itemName.toString(),
-                              style: Theme.of(context).textTheme.titleLarge!
-                                  .copyWith(fontWeight: .bold),
+          child: Consumer<AddExpenseItemProvider>(
+            builder: (_,provider,_) {
+              return ListView.builder(
+                itemCount: provider.expenseItemLists.length,
+                itemBuilder: (_, index) {
+                  final eachItem = provider.expenseItemLists[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              ExpenseItemDetailsScreen(index: index,),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 5,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: .start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    eachItem.itemName.toString(),
+                                    style: Theme.of(context).textTheme.titleLarge!
+                                        .copyWith(fontWeight: .bold),
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(Icons.menu),
+                                ),
+                              ],
                             ),
-                          ),
-                          IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
-                        ],
-                      ),
 
-                      Row(
-                        children: [
-                          Text("Balance: ${eachItem.balance}"),
-                          const Spacer(),
-                          Text(eachItem.formattedDate), //"04-02-2026, 11:45AM"
-                        ],
+                            Row(
+                              children: [
+                                Text("Balance: ${eachItem.balance.toStringAsFixed(0)}"),
+                                const Spacer(),
+                                Text(
+                                  eachItem.formattedDate,
+                                ), //"04-02-2026, 11:45AM"
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
-            },
+            }
           ),
         ),
       ),
@@ -81,13 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _addButtonOnTap() {
     showModalBottomSheet(
       context: context,
-      builder: (_) => AddNewExpenseItem(onAddItems: _addExpenseItem),
+      builder: (_) => AddNewExpenseItem(),
     );
   }
 
-  void _addExpenseItem(ExpenseItemModel items) {
-    setState(() {
-      _items.add(items);
-    });
-  }
+
 }
