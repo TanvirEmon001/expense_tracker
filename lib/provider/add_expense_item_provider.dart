@@ -1,36 +1,32 @@
 import 'package:flutter/foundation.dart';
+import 'package:track_expense/database/database_helper.dart';
 import 'package:track_expense/models/expense_item_model.dart';
 
 class AddExpenseItemProvider extends ChangeNotifier {
-  List<ExpenseItemModel> _expenseItemLists = [
-    ExpenseItemModel(
-      itemName: "Get my Salary",
-      balance: 20000,
-      dateTime: DateTime.now(),
-    ),
-    ExpenseItemModel(
-      itemName: "Loan From Friend",
-      balance: 500,
-      dateTime: DateTime.now(),
-    ),
-  ];
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  List<ExpenseItemModel> _expenseItemLists = [];
   List<ExpenseItemModel> get expenseItemLists => _expenseItemLists;
 
-  void addExpenseItem(ExpenseItemModel items){
-    _expenseItemLists.add(items);
+
+  Future<void> loadExpenseItem() async {
+    final items = await _dbHelper.getAllExpenseItem();
+    _expenseItemLists = items;
     notifyListeners();
   }
 
 
-  void setInitialItems(List<ExpenseItemModel> items) {
-    _expenseItemLists = items;
+  Future<void> addExpenseItem(ExpenseItemModel items) async {
+    await _dbHelper.insertExpenseItem(items);
+    await loadExpenseItem();
   }
 
-  void updateItem({
+
+  Future<void> updateItem({
     required int index,
     required double amount,
     required bool isExpense,
-  }) {
+  }) async {
     if (isExpense) {
       if(_expenseItemLists[index].balance <= 0){
         return;
@@ -41,10 +37,15 @@ class AddExpenseItemProvider extends ChangeNotifier {
     }else {
       _expenseItemLists[index].balance += amount;
     }
-
+    await _dbHelper.updateExpenseItem(_expenseItemLists[index]);
     notifyListeners();
   }
 
+
+  Future<void> deleteExpenseItem(String id) async {
+    await _dbHelper.deleteExpenseItem(id);
+    await loadExpenseItem();
+  }
 
 
 
