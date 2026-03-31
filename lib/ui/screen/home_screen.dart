@@ -14,6 +14,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      context.read<AddExpenseItemProvider>().loadExpenseItem();
+    });
+  }
+
 
   @override
   Widget build(context) {
@@ -27,64 +35,62 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Expanded(
-          child: Consumer<AddExpenseItemProvider>(
-            builder: (_,provider,_) {
-              return ListView.builder(
-                itemCount: provider.expenseItemLists.length,
-                itemBuilder: (_, index) {
-                  final eachItem = provider.expenseItemLists[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              ExpenseItemDetailsScreen(index: index, itemId: eachItem.id,),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      elevation: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: .start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    eachItem.itemName.toString(),
-                                    style: Theme.of(context).textTheme.titleLarge!
-                                        .copyWith(fontWeight: .bold),
-                                  ),
+        child: Consumer<AddExpenseItemProvider>(
+          builder: (context,provider,child) {
+            return ListView.builder(
+              itemCount: provider.expenseItemLists.length,
+              itemBuilder: (_, index) {
+                final eachItem = provider.expenseItemLists[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ExpenseItemDetailsScreen(index: index, itemId: eachItem.id,),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 5,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: .start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  eachItem.itemName.toString(),
+                                  style: Theme.of(context).textTheme.titleLarge!
+                                      .copyWith(fontWeight: .bold),
                                 ),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.menu),
-                                ),
-                              ],
-                            ),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.menu),
+                              ),
+                            ],
+                          ),
 
-                            Row(
-                              children: [
-                                Text("Balance: ${eachItem.balance.toStringAsFixed(0)}"),
-                                const Spacer(),
-                                Text(
-                                  eachItem.formattedDate,
-                                ), //"04-02-2026, 11:45AM"
-                              ],
-                            ),
-                          ],
-                        ),
+                          Row(
+                            children: [
+                              Text("Balance: ${eachItem.balance.toStringAsFixed(0)}"),
+                              const Spacer(),
+                              Text(
+                                eachItem.formattedDate,
+                              ), //"04-02-2026, 11:45AM"
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
-              );
-            }
-          ),
+                  ),
+                );
+              },
+            );
+          }
         ),
       ),
     );
