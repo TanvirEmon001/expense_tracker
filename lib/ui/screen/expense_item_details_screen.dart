@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:track_expense/provider/add_expense_item_provider.dart';
@@ -26,15 +24,20 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
   bool isExpense = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BalanceItemProvider>().loadBalanceItem(widget.itemId);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final item = context
         .watch<AddExpenseItemProvider>()
         .expenseItemLists[widget.index];
 
-    final transactions = context.watch<BalanceItemProvider>().getItemsById(
-      item.id,
-    );
-    transactions.reversed.toList();
     return Scaffold(
       backgroundColor: Colors.grey[50], // Light background to make the card pop
       appBar: AppBar(
@@ -131,50 +134,48 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
               Consumer<BalanceItemProvider>(
                 builder: (_, provider, _) {
                   return ListView.builder(
-                    itemCount: transactions.length,
+                    itemCount: provider.items.length,
                     shrinkWrap: true,
-                      itemBuilder: (_, index) {
-                        final tx = transactions[index];
+                    itemBuilder: (_, index) {
+                      final tx = provider.items[index];
 
-                        final isExpense = tx.isExpense;
-                        final textColor = isExpense ? Colors.white : null;
-                        final cardColor =
-                        isExpense ? Colors.redAccent : Colors.greenAccent;
-                        final label = isExpense ? "Expense" : "Profit";
-                        final sign = isExpense ? "-" : "+";
+                      final isExpense = tx.isExpense;
+                      final textColor = isExpense ? Colors.white : null;
+                      final cardColor = isExpense
+                          ? Colors.redAccent
+                          : Colors.greenAccent;
+                      final label = isExpense ? "Expense" : "Profit";
+                      final sign = isExpense ? "-" : "+";
 
-                        return Card(
-                          color: cardColor,
-                          child: ListTile(
-                            title: Row(
-                              children: [
-                                Text(
-                                  label,
-                                  style: TextStyle(color: textColor),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  "$sign${tx.updatedBalance}",
-                                  style: TextStyle(color: textColor),
-                                ),
-                              ],
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Text(
-                                  tx.title,
-                                  style: TextStyle(color: textColor),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  tx.formattedDate.toString(),
-                                  style: TextStyle(color: textColor),
-                                ),
-                              ],
-                            ),
+                      return Card(
+                        color: cardColor,
+                        child: ListTile(
+                          title: Row(
+                            children: [
+                              Text(label, style: TextStyle(color: textColor)),
+                              const Spacer(),
+                              Text(
+                                "$sign${tx.updatedBalance}",
+                                style: TextStyle(color: textColor),
+                              ),
+                            ],
                           ),
-                        );
-                      }
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                tx.title,
+                                style: TextStyle(color: textColor),
+                              ),
+                              const Spacer(),
+                              Text(
+                                tx.formattedDate.toString(),
+                                style: TextStyle(color: textColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -198,6 +199,4 @@ class _ExpenseItemDetailsScreenState extends State<ExpenseItemDetailsScreen> {
       )),
     );
   }
-
-
 }
